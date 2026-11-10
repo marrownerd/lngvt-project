@@ -2,6 +2,7 @@ from .retrieval import retrieve
 from .matching import match_profile
 from .llm import generate_answer
 from .uncertainty import assess_uncertainty, render_uncertainty_markdown
+from .effect_extraction import extract_from_papers
 
 
 def build_report(question, profile, k=8):
@@ -26,6 +27,30 @@ def build_report(question, profile, k=8):
         "",
         render_uncertainty_markdown(assessment),
     ]
+
+    extracted = extract_from_papers([hit["paper"] for hit in hits])
+    lines += ["## Численные результаты, найденные в доступном тексте", ""]
+    if extracted:
+        lines.append("Ниже приведены кандидаты, распознанные регулярными выражениями. Это не проверенные вручную результаты: перед интерпретацией откройте исходную статью и проверьте таблицу/модель.")
+        lines.append("")
+        for item in extracted:
+            ci = (f'95% CI {item["ci95_lower"]:.3g}–{item["ci95_upper"]:.3g}'
+                  if item["ci95_lower"] is not None and item["ci95_upper"] is not None else "95% CI не распознан")
+            pvalue = item["p_value_text"] or "p-value не распознан"
+            lines += [
+                f'- **PMID {item["pmid"]} · {item["effect_measure"]} {item["estimate"]:.3g}**; {ci}; {pvalue}; status: `{item["validation_status"]}`',
+                f'  - Исход (подсказка по предложению): {item["outcome_hint"] or "не классифицирован"}; follow-up mention: {item["follow_up_source_mention"] or "не извлечён"}; N mention: {item["sample_size_source_mention"] or "не извлечён"}',
+                f'  - Тип источника: {item["source_type"]}; ссылка: {item["source_url"] or "URL недоступен"}',
+                f'  - Фрагмент: “{item["source_text"]}”',
+            ]
+            for warning in item["validation_warnings"]:
+                lines.append(f'  - **Проверка:** {warning}')
+            for error in item["validation_errors"]:
+                lines.append(f'  - **Ошибка разбора:** {error}')
+        lines.append("")
+    else:
+        lines += ["В доступных текстах найденных статей распознаваемые HR/RR/OR/IRR с численными оценками не обнаружены. Это не означает, что численных результатов нет в полном тексте.", ""]
+    lines += ["Автоматический метаанализ в briefing выключен: совместимость исходов/estimands, популяций, горизонтов наблюдения и независимость когорт нельзя надёжно установить по одному regex-парсеру аннотаций/полного текста. Используйте вкладку Evidence & statistics только после проверки оригинальных источников.", ""]
 
     answer, fallback_reason = generate_answer(question, profile, hits, assessment)
     if answer:

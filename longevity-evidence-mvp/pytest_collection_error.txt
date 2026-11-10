@@ -1,0 +1,100 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.15, pytest-8.4.2, pluggy-1.7.0 -- /home/jija/anaconda3/envs/ml_space/bin/python
+cachedir: .pytest_cache
+rootdir: /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp
+plugins: anyio-4.13.0
+collecting ... collected 30 items / 6 errors
+
+<Dir longevity-evidence-mvp>
+  <Dir Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)>
+    <Dir longevity-evidence-mvp>
+      <Dir tests>
+        <Module test_db_migration.py>
+          <Function test_old_database_gets_pmcid_column_and_still_accepts_papers>
+        <Module test_effect_extraction.py>
+          <Function test_extracts_hr_ci_pvalue_and_preserves_provenance>
+          <Function test_extracts_risk_ratio_and_less_than_p_value>
+          <Function test_flags_point_estimate_outside_ci>
+          <Function test_does_not_extract_non_ratio_mean_difference_as_ratio>
+          <Function test_missing_abstract_returns_no_candidates>
+          <Function test_full_text_source_is_labeled_and_offsets_point_into_full_text>
+          <Function test_lowercase_english_conjunction_or_is_not_mistaken_for_odds_ratio>
+          <Function test_greater_than_p_value_operator_is_retained_for_review>
+          <Function test_multiple_effects_in_same_sentence_get_their_own_pvalues>
+        <Module test_evidence.py>
+          <Function test_random_effects_returns_interval>
+          <Function test_bayesian_update>
+          <Function test_simulation_reproducible>
+          <Function test_normal_kl_divergence_is_zero_for_identical_distributions>
+          <Function test_prior_sensitivity_returns_named_scenarios>
+        <Module test_meta_analysis.py>
+          <Function test_pooling_requires_explicit_compatibility_attestation>
+          <Function test_reml_pooling_returns_ci_and_heterogeneity>
+          <Function test_dl_pooling_with_two_studies_has_no_prediction_interval>
+          <Function test_pooling_rejects_different_effect_measures_and_metadata>
+          <Function test_pooling_rejects_duplicate_pmids>
+          <Function test_benjamini_hochberg_adjustment>
+          <Function test_bh_rejects_invalid_pvalues>
+          <Function test_pooling_reports_null_hypothesis_test_and_relative_ci>
+          <Function test_pooling_requires_source_identifiers>
+        <Module test_open_access.py>
+          <Function test_jats_xml_text_includes_sections_and_table_rows>
+          <Function test_cached_full_text_is_preferred_and_keeps_cached_pmcid>
+          <Function test_pmcid_alone_does_not_bypass_europe_pmc_open_access_check>
+        <Module test_uncertainty.py>
+          <Function test_empty_corpus_explains_no_evidence_is_not_no_effect>
+          <Function test_population_mentions_are_not_claimed_as_subgroup_results>
+          <Function test_does_not_enable_pooling_without_validated_effect_data>
+
+==================================== ERRORS ====================================
+_________________ ERROR collecting tests/test_db_migration.py __________________
+import file mismatch:
+imported module 'test_db_migration' has this __file__ attribute:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)/longevity-evidence-mvp/tests/test_db_migration.py
+which is not the same as the test file we want to collect:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/tests/test_db_migration.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_______________ ERROR collecting tests/test_effect_extraction.py _______________
+import file mismatch:
+imported module 'test_effect_extraction' has this __file__ attribute:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)/longevity-evidence-mvp/tests/test_effect_extraction.py
+which is not the same as the test file we want to collect:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/tests/test_effect_extraction.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+___________________ ERROR collecting tests/test_evidence.py ____________________
+import file mismatch:
+imported module 'test_evidence' has this __file__ attribute:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)/longevity-evidence-mvp/tests/test_evidence.py
+which is not the same as the test file we want to collect:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/tests/test_evidence.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+_________________ ERROR collecting tests/test_meta_analysis.py _________________
+import file mismatch:
+imported module 'test_meta_analysis' has this __file__ attribute:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)/longevity-evidence-mvp/tests/test_meta_analysis.py
+which is not the same as the test file we want to collect:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/tests/test_meta_analysis.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+__________________ ERROR collecting tests/test_open_access.py __________________
+import file mismatch:
+imported module 'test_open_access' has this __file__ attribute:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)/longevity-evidence-mvp/tests/test_open_access.py
+which is not the same as the test file we want to collect:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/tests/test_open_access.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+__________________ ERROR collecting tests/test_uncertainty.py __________________
+import file mismatch:
+imported module 'test_uncertainty' has this __file__ attribute:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/Living_Evidence_Engine_v0.2_Evidence_Extraction_Stats (2)/longevity-evidence-mvp/tests/test_uncertainty.py
+which is not the same as the test file we want to collect:
+  /home/jija/Downloads/longevity-evidence-mvp-uncertainty-aware/longevity-evidence-mvp/tests/test_uncertainty.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+=========================== short test summary info ============================
+ERROR tests/test_db_migration.py
+ERROR tests/test_effect_extraction.py
+ERROR tests/test_evidence.py
+ERROR tests/test_meta_analysis.py
+ERROR tests/test_open_access.py
+ERROR tests/test_uncertainty.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+==================== 30 tests collected, 6 errors in 1.80s =====================

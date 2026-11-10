@@ -43,3 +43,11 @@ A life-years estimate is not obtained by multiplying an association by a person'
 The report now separates retrieval relevance from evidence strength and adds a deterministic uncertainty ledger. It describes coverage, missing abstracts, heuristic study-design classification, profile/population transfer limits, causal limitations, unknown cohort overlap, and the absence of validated effect estimates. No aggregate confidence percentage is produced.
 
 The statistical module additionally exposes prior-sensitivity analysis for the normal-normal update and KL divergence between normal posterior approximations. These are research utilities only: the current paper pipeline does not extract validated effect estimates, so the report intentionally does not pool retrieved papers.
+
+## Numerical extraction and manual synthesis (v0.2 iteration)
+
+`effect_extraction.py` scans abstracts or locally cached Europe PMC OA text for a limited set of ratio effects (HR/RR/OR/IRR), 95% CIs and p-values. Every candidate keeps a source sentence and text offsets. It is a conservative baseline parser; values must be checked in the source article. `open_access.py` resolves PubMed IDs through Europe PMC and fetches XML only for records marked open access, then converts prose and table rows to cached text. Source licences still govern reuse.
+
+`meta_analysis.py` pools only log-ratio estimates with standard errors and common, explicitly declared synthesis metadata. The calling UI requires a user attestation covering estimand/outcome, population, comparator, follow-up, design and independence. This attestation is not machine-verified. REML and DL are available; the reported modified Hartung–Knapp interval and prediction interval are approximations appropriate for methodological exploration, not a substitute for a protocol-defined analysis. BH correction is available as a utility and requires a prespecified hypothesis family.
+
+The next quality gate is a benchmark with manually double-annotated abstracts/full texts, adjudicated effect measure/estimate/CI/p-value/outcome/contrast/population/follow-up/design, cohort-overlap labels and text spans. Report field-level precision, recall and exact-match accuracy; do not infer trust from the parser's own validation flags.

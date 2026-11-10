@@ -168,6 +168,9 @@ longevity/
   db.py                 SQLite schema and persistence
   pubmed.py             PubMed E-utilities client
   extract.py            Heuristic metadata extraction
+  effect_extraction.py  Candidate numerical effect extraction with source spans
+  open_access.py        Europe PMC open-access full-text retrieval and local cache
+  meta_analysis.py      REML/DL synthesis, modified Hartung–Knapp, BH utility
   matching.py           Profile-to-paper triage
   retrieval.py          Local TF-IDF retrieval
   report.py             Source-linked briefing builder
@@ -178,15 +181,19 @@ longevity/
   logging_utils.py      JSONL event logging
 tests/
   test_evidence.py      Basic statistical tests
+  test_effect_extraction.py  Numerical extraction and provenance tests
+  test_meta_analysis.py      Pooling and FDR tests
+  test_open_access.py        JATS parsing and cached full-text tests
+  test_db_migration.py       Existing SQLite schema migration test
 ```
 
 ## Suggested next steps
 
-1. Replace keyword-only population matching with structured extraction and evidence spans.
-2. Add Europe PMC and Crossref as secondary sources, with source provenance and deduplication.
-3. Add a proper study-design and risk-of-bias schema.
-4. Add a hybrid retriever (BM25 + embeddings + reranker).
-5. Build a benchmark of manually reviewed questions and relevant papers.
+1. Build a manually double-annotated benchmark for medical abstracts and full texts; measure extraction precision/recall for each field.
+2. Expand the parser to continuous effects, risk differences, dose-response and table layouts, with human review.
+3. Add source adapters such as Crossref and OpenAlex, keeping provenance and deduplication.
+4. Add a proper study-design, cohort-overlap and risk-of-bias schema (RoB 2 / ROBINS-I / ROBINS-E as appropriate).
+5. Add a hybrid retriever (BM25 + embeddings + reranker) and a systematic-search protocol.
 6. Add claim-level evidence records: supports, contradicts, or does not directly address.
 7. Add versioned evidence summaries so each weekly run can explain what changed and why.
 8. Only after that, consider a survival-analysis module using a well-defined endpoint and validated external data.
@@ -194,3 +201,24 @@ tests/
 ## Data and source policy
 
 Keep the original source identifiers and links. Respect PubMed/NCBI usage policies and the licences and terms of any full-text provider. Do not assume that a PubMed record grants permission to download or redistribute the publisher's full text.
+
+## Numerical evidence extraction and statistical lab (new iteration)
+
+The **Evidence & statistics** tab adds an initial, inspectable numerical extraction workflow:
+
+- It scans PubMed abstracts and cached Europe PMC open-access full texts for HR, RR, OR and IRR estimates, nearby 95% confidence intervals and p-values.
+- It retains PMID/DOI, the exact sentence, character offsets, source URL, source type and extraction method.
+- It runs arithmetic checks (positive ratio values, CI ordering, point estimate inside CI, approximate CI/p-value consistency) and derives an approximate standard error on the log-ratio scale from a reported 95% CI.
+- It can fetch full-text XML for records listed as open access by Europe PMC. Extracted text is cached locally under `data/open_access_cache/`; the parser includes prose paragraphs and table rows where available. It does not bypass paywalls. Check each article's licence before reuse or redistribution.
+- It exposes manually selected random-effects synthesis using REML or DerSimonian–Laird, modified Hartung–Knapp confidence intervals, Q, I², τ² and an approximate prediction interval when at least three studies are selected.
+- A Benjamini–Hochberg utility is included for a *predefined family* of p-values; the app does not automatically apply it to arbitrary extracted outcomes.
+
+### Important extraction and synthesis limits
+
+This is a **regex-based candidate extractor**, not Quinex, an LLM extractor, or a clinically validated system. It currently recognizes common ratio measures and selected CI formats. It does not reliably extract continuous outcomes, risk differences, subgroup interactions, adjusted covariate sets, exposure dose contrasts, competing risks or all table layouts. A missing candidate is not evidence that the paper has no result. Full-text retrieval is available only where Europe PMC exposes open-access XML.
+
+The label `mechanically_consistent` means only that the recognized values pass the implemented arithmetic checks. It does not mean that the estimate was confirmed in the source table, that the model is correct, that confounding is controlled, or that the paper has low risk of bias. The standard error derived from a 95% CI uses a normal approximation on the log-ratio scale and may be inappropriate for some interval methods or small-sample analyses.
+
+Pooling is deliberately **not automatic**. The user must select estimates, inspect the original articles, state shared outcome/estimand, population, comparator, follow-up and design, and attest that selected results are independent (including no overlapping cohorts). The software cannot verify this attestation. Even after pooling, the result is a relative HR/RR/OR/IRR estimate, not an absolute percentage-point risk reduction, causal treatment effect, or change in life expectancy. A pooled observational HR of 0.82 must not be rendered as an 18% increase in survival probability or as additional years of life.
+
+The current milestone still does not implement validated personalized prediction or life-years modelling. Before using this beyond a prototype, create a manually adjudicated medical-paper benchmark, measure extraction precision/recall by field and format, compare meta-analysis outputs against independent statistical software, and conduct a formal study-level risk-of-bias assessment.

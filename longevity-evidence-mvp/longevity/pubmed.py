@@ -70,9 +70,14 @@ def fetch_details(pmids):
         abstract = "\\n".join(abstract_parts)
         journal = _text(citation, ".//Journal/Title")
         doi = ""
+        pmcid = None
         for aid in art.findall(".//ArticleId"):
-            if aid.attrib.get("IdType") == "doi":
-                doi = (aid.text or "").strip()
+            id_type = aid.attrib.get("IdType", "").lower()
+            id_value = (aid.text or "").strip()
+            if id_type == "doi":
+                doi = id_value
+            elif id_type in {"pmc", "pmcid"} and id_value:
+                pmcid = id_value if id_value.upper().startswith("PMC") else f"PMC{id_value}"
         date_node = citation.find(".//Article/Journal/JournalIssue/PubDate")
         pub_date = ""
         if date_node is not None:
@@ -88,7 +93,7 @@ def fetch_details(pmids):
         pub_types = [_text(x, ".") for x in citation.findall(".//PublicationType")]
         mesh = [_text(x, ".") for x in citation.findall(".//MeshHeading/DescriptorName")]
         results.append({
-            "pmid": pmid, "doi": doi or None, "title": title or "Untitled",
+            "pmid": pmid, "doi": doi or None, "pmcid": pmcid, "title": title or "Untitled",
             "abstract": abstract, "pub_date": pub_date or None, "journal": journal,
             "authors": authors[:8], "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
             "publication_types": pub_types, "mesh_terms": mesh

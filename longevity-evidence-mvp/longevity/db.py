@@ -14,6 +14,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS papers (
             pmid TEXT PRIMARY KEY,
             doi TEXT,
+            pmcid TEXT,
             title TEXT NOT NULL,
             abstract TEXT,
             pub_date TEXT,
@@ -61,6 +62,10 @@ def init_db():
             details TEXT
         );
         """)
+        # Backward-compatible schema migration for databases created by earlier MVP versions.
+        columns = {row[1] for row in con.execute("PRAGMA table_info(papers)").fetchall()}
+        if "pmcid" not in columns:
+            con.execute("ALTER TABLE papers ADD COLUMN pmcid TEXT")
         defaults = [
             ("Regular physical activity", "physical_activity",
              "Research on physical activity, exercise, cardiorespiratory fitness and health outcomes."),
@@ -102,12 +107,12 @@ def upsert_paper(p):
     with connect() as con:
         cur = con.execute("""
         INSERT OR IGNORE INTO papers
-        (pmid,doi,title,abstract,pub_date,journal,authors,url,publication_types,
+        (pmid,doi,pmcid,title,abstract,pub_date,journal,authors,url,publication_types,
          mesh_terms,inferred_sexes,inferred_age_groups,inferred_diseases,inferred_topics,
          extraction_json,fetched_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         """, (
-            p["pmid"], p.get("doi"), p["title"], p.get("abstract",""), p.get("pub_date"),
+            p["pmid"], p.get("doi"), p.get("pmcid"), p["title"], p.get("abstract",""), p.get("pub_date"),
             p.get("journal"), json.dumps(p.get("authors",[])), p.get("url"),
             json.dumps(p.get("publication_types",[])), json.dumps(p.get("mesh_terms",[])),
             json.dumps(p.get("inferred_sexes",[])), json.dumps(p.get("inferred_age_groups",[])),
